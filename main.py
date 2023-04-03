@@ -1,7 +1,7 @@
 import os
 import time
 import pandas as pd
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QTableWidgetItem, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QTableWidgetItem, QMessageBox, QProgressDialog
 import ui_main
 import sys
 
@@ -181,19 +181,22 @@ class MainWindow(QMainWindow):
             for j in range(len(self.data_final.columns)):
                 self.ui.list_content_file.setItem(i, j, QTableWidgetItem(str(self.data_final.iat[i, j])))
 
+        progress_dialog = QProgressDialog("Loading...", None, 0, 100, self.ui.list_content_file)
+        progress_dialog.setWindowTitle("Progress")
+        progress_dialog.setWindowModality(True)
+        progress_dialog.setAutoClose(False)
+        progress_dialog.setAutoReset(False)
+        progress_dialog.show()
+
+        for i in range(100):
+            progress_dialog.setValue(i + 1)
+            QApplication.processEvents()
+
+            time.sleep(0.1)
+
+        progress_dialog.close()
         self.ui.list_content_file.resizeColumnsToContents()
         self.ui.list_content_file.resizeRowsToContents()
-        count = 0
-        for i in range(100):
-            count += 1
-            time.sleep(0.0)
-            self.ui.progressBar.setValue(count)
-        msgBox = QMessageBox()
-        msgBox.setIcon(QMessageBox.Information)
-        msgBox.setText("Treatment in success")
-        msgBox.setWindowTitle("Message Box")
-        msgBox.setStandardButtons(QMessageBox.Ok)
-        msgBox.exec_()
 
     def show_export_dialog(self):
         options = QFileDialog.Options()
@@ -204,6 +207,13 @@ class MainWindow(QMainWindow):
 
     def exportation(self):
         if self.ui.csv.isChecked():
+            progress_dialog = QProgressDialog("Loading...", None, 0, 100, self.ui.list_content_file)
+            progress_dialog.setWindowTitle("Progress")
+            progress_dialog.setWindowModality(True)
+            progress_dialog.setAutoClose(False)
+            progress_dialog.setAutoReset(False)
+            progress_dialog.show()
+
             options = QFileDialog.Options()
             options |= QFileDialog.DontUseNativeDialog
             path = QFileDialog.getExistingDirectory(self, "select directory", options=options)
@@ -211,37 +221,32 @@ class MainWindow(QMainWindow):
             self.data_final.to_csv(f"{path}/{output}", index=False)
             self.output_view = pd.read_csv(f"{path}/{output}", encoding='ISO-8859-1', low_memory=False)
             path_ = os.path.abspath(f"{path}/{output}")
-            self.ui.path_for_exporting_file.setText(path_)
-            count = 0
             for i in range(100):
-                count += 1
-                time.sleep(0.0)
-                self.ui.progressBar.setValue(count)
-            msgBox = QMessageBox()
-            msgBox.setIcon(QMessageBox.Information)
-            msgBox.setText("Treatment in success")
-            msgBox.setWindowTitle("Message Box")
-            msgBox.setStandardButtons(QMessageBox.Ok)
-            msgBox.exec_()
+                progress_dialog.setValue(i + 1)
+                QApplication.processEvents()
+                time.sleep(0.1)
+            progress_dialog.close()
+            self.ui.path_for_exporting_file.setText(path_)
         elif self.ui.xls.isChecked():
+            progress_dialog = QProgressDialog("Loading...", None, 0, 100, self.ui.list_content_file)
+            progress_dialog.setWindowTitle("Progress")
+            progress_dialog.setWindowModality(True)
+            progress_dialog.setAutoClose(False)
+            progress_dialog.setAutoReset(False)
+            progress_dialog.show()
             options = QFileDialog.Options()
             options |= QFileDialog.DontUseNativeDialog
             path = QFileDialog.getExistingDirectory(self, "select directory", options=options)
             output = "output.xlsx"
             self.data_final.to_excel(f"{path}/{output}",engine='openpyxl', index=False)
             path_ = os.path.abspath(f"{path}/{output}")
-            self.ui.path_for_exporting_file.setText(path_)
-            count = 0
+
             for i in range(100):
-                count += 1
-                time.sleep(0.0)
-                self.ui.progressBar.setValue(count)
-            msgBox = QMessageBox()
-            msgBox.setIcon(QMessageBox.Information)
-            msgBox.setText("Treatment in success")
-            msgBox.setWindowTitle("Message Box")
-            msgBox.setStandardButtons(QMessageBox.Ok)
-            msgBox.exec_()
+                progress_dialog.setValue(i + 1)
+                QApplication.processEvents()
+                time.sleep(0.1)
+            progress_dialog.close()
+            self.ui.path_for_exporting_file.setText(path_)
 
     def ShowProgressBar(self):
         if self.ui.load_file.isChecked():
